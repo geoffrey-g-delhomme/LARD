@@ -7,6 +7,9 @@ import numpy as np
 from datetime import datetime
 from typing import Union
 
+import pytz
+from timezonefinder import TimezoneFinder
+
 from src.ges.geo_utils import find_center, ecef2llh, llh2ecef, find_azimuth_between_2_coordinates, forward_pos
 from src.scenario.default_scenario_values import DefaultTrajectory
 
@@ -197,7 +200,7 @@ def define_offset(
     dh_m = generate_dist(traj.min_distance_m, traj.max_distance_m, traj.sample_number, traj.distribution, traj.distrib_param)
     dh_m = np.sort(dh_m)[::-1]
     # print(std_roll_deg)
-    dav_deg = np.random.normal(traj.alpha_v_deg, traj.std_alpha_v_deg, (traj.sample_number,))
+    dav_deg = np.random.normal(traj.alpha_v_deg, traj.std_alpha_v_deg, (traj.sample_number,)).clip(-8, -1)
     dz_m = -np.tan(np.deg2rad(dav_deg)) * dh_m
     dah_deg = np.random.normal(traj.alpha_h_deg, traj.std_alpha_h_deg, (traj.sample_number,))
     phi_deg = np.random.normal(traj.roll_deg, traj.std_roll_deg, (traj.sample_number,))
@@ -407,6 +410,7 @@ class GESDataset(object):
             metadata = None
 
         index = 0
+        tf = TimezoneFinder()
         for i in range(len(flight_data)):
 
             row = flight_data[i]
@@ -419,7 +423,14 @@ class GESDataset(object):
             second = time['second']
             myhour = time['hour']
 
-            date_time = int(datetime(year, month, day, myhour, minute, second).timestamp()) * 1000
+            tz = tf.timezone_at(lng=row[0], lat=row[1])
+            timezone = pytz.timezone(tz)
+
+            dt = datetime(year, month, day, myhour, minute, second)
+            dt = timezone.localize(dt)
+            date_time = int(dt.timestamp()) * 1000
+
+            # date_time = int(datetime(year, month, day, myhour, minute, second).timestamp()) * 1000
             date_time_max = scenario['scenes'][0]['attributes'][1]['attributes'][1]['value']['maxValueRange'] = int(
                 datetime(year, 12, 31, 23, 59, 59).timestamp()) * 1000
             date_time_min = scenario['scenes'][0]['attributes'][1]['attributes'][1]['value']['minValueRange'] = int(

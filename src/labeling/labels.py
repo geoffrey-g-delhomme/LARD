@@ -99,6 +99,16 @@ class Labels:
             return self.df.iloc[img_idx].to_dict()
         except ValueError:  # try if an image path was provided
             return self.df[self.df["image"] == img_idx].iloc[0].to_dict()
+        
+    def get_labels(self, img_idx: str):
+        """
+        Return all information stored for a specific image from its image path or dataframe index
+
+        :param img_idx: image path or index
+        :type img_idx: str or int
+        :return: dict with all the image metadata
+        """
+        return self.df[self.df["image"] == img_idx].reset_index().to_dict(orient="index")
 
     def __iadd__(self, other: "Labels") -> "Labels":
         """
