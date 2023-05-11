@@ -11,7 +11,6 @@ __pycache__/
 # Distribution / packaging
 .Python
 models/
-scenarios/
 env/
 # build/
 develop-eggs/
@@ -76,3 +75,4 @@ target/
 GESGenerator
 .DS_Store
 datasets
+records
