@@ -1,8 +1,10 @@
-import pandas as pd
+from pathlib import Path, PurePath
+from typing import List, Union
+
 import numpy as np
-from pathlib import PurePath, Path
+import pandas as pd
+
 from src.labeling.export_config import CORNERS_NAMES
-from typing import Union, List
 
 
 class Labels:
@@ -47,9 +49,10 @@ class Labels:
                     "yaw",  # -180 to +180, 0=south
                     "pitch",  # (degree, clockwise, 90 is horizontal)
                     "roll",  # (counterclockwise, degree. 0 is horizontal).
-                    "watermark_height"
-                    ] + [f"{c}_{name}" for name in CORNERS_NAMES for c in ["x", "y"]]  # names of labels columns (
-    # corners positions in the image)
+                    "watermark_height",
+                    "keypoints",
+                    "bbox",
+                    "mask"]
 
     def __init__(self, path: Union[str, Path] = None) -> None:
         """
